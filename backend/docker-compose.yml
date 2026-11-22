@@ -1,0 +1,64 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: ems-mongo
+    restart: unless-stopped
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval \"db.adminCommand({ ping: 1 }).ok\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  mongo-init:
+    image: mongo:7
+    container_name: ems-mongo-init
+    depends_on:
+      mongo:
+        condition: service_healthy
+    entrypoint: >
+      bash -c "
+      mongosh --host mongo:27017 --quiet --eval '
+        try { rs.status(); }
+        catch (e) { rs.initiate({ _id: \"rs0\", members: [{ _id: 0, host: \"mongo:27017\" }] }); }
+      ';
+      "
+    restart: "no"
+
+  backend:
+    build:
+      context: ./backend
+    container_name: ems-backend
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+      mongo-init:
+        condition: service_completed_successfully
+    environment:
+      PORT: 5000
+      NODE_ENV: production
+      MONGODB_URI: mongodb://mongo:27017/expense_management?replicaSet=rs0
+      JWT_SECRET: change_me_in_production_min_32_chars_long_secret
+      JWT_EXPIRES_IN: 1d
+      FRONTEND_URL: http://localhost:5173
+      COOKIE_SECURE: "false"
+      COOKIE_SAME_SITE: lax
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+volumes:
+  mongo_data:
