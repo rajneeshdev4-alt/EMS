@@ -6,8 +6,8 @@ const CSRF_HEADER_NAME = 'x-csrf-token';
 
 const baseCookieOptions = {
   httpOnly: true,
-  secure: env.cookieSecure,
-  sameSite: env.cookieSameSite,
+  secure: true,           // MUST be true for cross-site
+  sameSite: 'none',       // MUST be 'none' for cross-site
   path: '/',
   maxAge: 24 * 60 * 60 * 1000,
 };
