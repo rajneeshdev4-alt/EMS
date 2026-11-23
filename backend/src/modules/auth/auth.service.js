@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const User = require('../users/user.model');
 const ApiError = require('../../utils/ApiError');
 const { signToken } = require('../../utils/token');
+const { ROLES } = require('../../constants');
 
 function generateCsrfToken() {
   return crypto.randomBytes(32).toString('hex');
@@ -34,4 +35,19 @@ async function getProfile(userId) {
   };
 }
 
-module.exports = { login, getProfile };
+async function register({ name, email, password }) {
+  const existing = await User.findByEmail(email);
+  if (existing) throw ApiError.conflict('Email already in use');
+
+  const user = await User.create({
+    name,
+    email,
+    password,
+    role: ROLES.USER, // Force new signups to be regular users
+  });
+
+  const token = signToken({ sub: user._id.toString(), role: user.role });
+  return { token, user: user.toJSON(), csrfToken: generateCsrfToken() };
+}
+
+module.exports = { login, register, getProfile };

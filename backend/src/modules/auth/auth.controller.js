@@ -26,4 +26,12 @@ const me = asyncHandler(async (req, res) => {
   return success(res, 200, 'Profile fetched successfully', { user });
 });
 
-module.exports = { login, logout, me };
+const register = asyncHandler(async (req, res) => {
+  const { token, user, csrfToken } = await authService.register(req.body);
+  setAuthCookie(res, token);
+  setCsrfCookie(res, csrfToken); // <--- Change this line (it was setCsrfToken before)
+  return success(res, 201, 'Registration successful', { user, csrfToken });
+});
+// Add to exports
+
+module.exports = { login, logout, me, register };

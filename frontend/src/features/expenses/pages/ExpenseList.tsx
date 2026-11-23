@@ -108,34 +108,34 @@ export default function ExpenseList() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex flex-1 gap-3 w-full sm:w-auto flex-wrap items-center">
+           <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+        <div className="flex flex-1 flex-col sm:flex-row gap-3 w-full xl:w-auto items-start sm:items-center">
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" size={16} />
             <Input 
               placeholder="Search expenses..." 
-              className="pl-9" 
+              className="pl-9 w-full" 
               value={search} 
               onChange={(e) => { setSearch(e.target.value); setPage(1); }} 
             />
           </div>
-          <Select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }} className="w-full sm:w-40">
-            <option value="">All Statuses</option>
-            {Object.values(STATUS).map((s) => <option key={s} value={s}>{s}</option>)}
-          </Select>
-          <Select value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); }} className="w-full sm:w-44">
-            <option value="">All Categories</option>
-            {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-          </Select>
-          
-          {/* Reset Button - Only shows if a filter is active */}
-          {hasActiveFilters && (
-            <Button variant="ghost" onClick={handleResetFilters} className="text-surface-500 hover:text-surface-900 px-3">
-              <RotateCcw size={16} className="mr-2" /> Reset
-            </Button>
-          )}
+          <div className="flex gap-3 w-full sm:w-auto">
+            <Select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }} className="w-full sm:w-36">
+              <option value="">All Statuses</option>
+              {Object.values(STATUS).map((s) => <option key={s} value={s}>{s}</option>)}
+            </Select>
+            <Select value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); }} className="w-full sm:w-40">
+              <option value="">All Categories</option>
+              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </Select>
+            {hasActiveFilters && (
+              <Button variant="ghost" onClick={handleResetFilters} className="text-surface-500 hover:text-surface-900 px-3">
+                <RotateCcw size={16} />
+              </Button>
+            )}
+          </div>
         </div>
-        <Button onClick={() => { setEditingExpense(null); setIsFormOpen(true); }} className="w-full sm:w-auto">
+        <Button onClick={() => { setEditingExpense(null); setIsFormOpen(true); }} className="w-full sm:w-auto shrink-0">
           <Plus size={16} className="mr-2" /> Add Expense
         </Button>
       </div>
@@ -173,7 +173,7 @@ export default function ExpenseList() {
                           <Button variant="ghost" className="p-2"><Eye size={16} /></Button>
                         </Link>
                         {/* Admin can edit/delete ANY expense. User can only edit/delete their own pending/rejected expenses */}
-                      {exp.status !== 'approved' && (user?.role === 'admin' || exp.createdBy._id === user?.id) && (
+                      {(user?.role === 'admin' || (exp.createdBy._id === user?.id && exp.status !== 'approved'))  && (
                           <>
                             <Button variant="ghost" className="p-2" onClick={() => { setEditingExpense(exp); setIsFormOpen(true); }}>
                               <Edit size={16} />

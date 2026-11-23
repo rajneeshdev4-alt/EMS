@@ -104,11 +104,13 @@ async function update(user, id, payload) {
     await session.withTransaction(async () => {
       const existing = await Expense.findOne({ _id: id, isDeleted: false }).session(session);
       if (!existing) throw ApiError.notFound('Expense not found');
-      if (existing.createdBy.toString() !== user.id) {
-        throw ApiError.forbidden('You can only update your own expenses');
-      }
-      if (existing.status === EXPENSE_STATUS.APPROVED) {
-        throw ApiError.forbidden('Approved expenses cannot be edited');
+           if (user.role !== ROLES.ADMIN) {
+        if (existing.createdBy.toString() !== user.id) {
+          throw ApiError.forbidden('You can only update your own expenses');
+        }
+        if (existing.status === EXPENSE_STATUS.APPROVED) {
+          throw ApiError.forbidden('Approved expenses cannot be edited');
+        }
       }
 
       if (payload.version !== undefined && payload.version !== existing.version) {
@@ -148,11 +150,13 @@ async function softDelete(user, id) {
     await session.withTransaction(async () => {
       const existing = await Expense.findOne({ _id: id, isDeleted: false }).session(session);
       if (!existing) throw ApiError.notFound('Expense not found');
-      if (existing.createdBy.toString() !== user.id) {
-        throw ApiError.forbidden('You can only delete your own expenses');
-      }
-      if (existing.status === EXPENSE_STATUS.APPROVED) {
-        throw ApiError.forbidden('Approved expenses cannot be deleted');
+           if (user.role !== ROLES.ADMIN) {
+        if (existing.createdBy.toString() !== user.id) {
+          throw ApiError.forbidden('You can only delete your own expenses');
+        }
+        if (existing.status === EXPENSE_STATUS.APPROVED) {
+          throw ApiError.forbidden('Approved expenses cannot be deleted');
+        }
       }
 
       const previousData = existing.toObject();

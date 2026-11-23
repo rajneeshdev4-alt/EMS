@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { Button } from '../../../components/ui/Button.tsx';
 import { Input } from '../../../components/ui/Input.tsx';
@@ -77,6 +77,10 @@ export default function Login() {
           Sign In
         </Button>
       </form>
+
+       <div className="mt-6 text-center text-sm text-surface-600">
+        Don't have an account? <Link to="/register" className="text-brand-600 font-medium hover:underline">Sign up</Link>
+      </div>
 
       <div className="mt-6 rounded-lg bg-surface-50 p-4 text-sm text-surface-600 border border-surface-200">
         <p className="font-medium mb-1">Demo Credentials:</p>

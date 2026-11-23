@@ -11,11 +11,15 @@ import ExpenseDetails from '../features/expenses/pages/ExpenseDetails';
 import Approvals from '../features/approvals/pages/Approvals';
 import Reports from '../features/reports/pages/Reports';
 import Users from '../features/users/pages/Users';
+import Register from '@/features/auth/pages/Register';
 
 const router = createBrowserRouter([
   {
     element: <AuthLayout />,
-    children: [{ path: '/login', element: <Login /> }],
+    children: [
+      { path: '/login', element: <Login /> },
+      { path: '/register', element: <Register /> }
+    ],
   },
   {
     element: <ProtectedRoute />, // Any logged-in user

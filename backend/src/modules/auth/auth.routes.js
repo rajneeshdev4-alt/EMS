@@ -55,5 +55,6 @@ router.post('/logout', controller.logout);
  *       401: { description: Unauthorized }
  */
 router.get('/me', authenticateUser, controller.me);
+router.post('/register', authLimiter, controller.register);
 
 module.exports = router;

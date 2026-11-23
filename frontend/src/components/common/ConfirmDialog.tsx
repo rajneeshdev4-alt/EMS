@@ -14,11 +14,19 @@ export function ConfirmDialog({
   }, [isOpen]);
 
   return (
-    <dialog ref={ref} onCancel={onClose} className="rounded-xl p-0 shadow-xl backdrop:bg-black/50">
-      <div className="w-96 p-6">
-        <h3 className="text-lg font-semibold text-surface-900">{title}</h3>
+    <dialog 
+      ref={ref} 
+      onCancel={onClose} 
+      className="m-auto rounded-xl p-0 shadow-xl backdrop:bg-black/50 backdrop:backdrop-blur-sm"
+      onClick={(e) => {
+        // Close if clicking outside the modal content
+        if (e.target === ref.current) onClose();
+      }}
+    >
+      <div className="w-full max-w-md p-6 bg-white rounded-xl">
+        <h3 className="text-xl font-semibold text-surface-900">{title}</h3>
         <p className="mt-2 text-sm text-surface-600">{description}</p>
-        <div className="mt-6 flex justify-end gap-3">
+        <div className="mt-8 flex justify-end gap-3">
           <Button variant="secondary" onClick={onClose} disabled={isLoading}>Cancel</Button>
           <Button variant={isDanger ? 'danger' : 'primary'} onClick={onConfirm} isLoading={isLoading}>{confirmText}</Button>
         </div>

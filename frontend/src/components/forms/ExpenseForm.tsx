@@ -9,14 +9,16 @@ import type { Expense } from '../../types';
 
 const expenseSchema = z.object({
   title: z.string().trim().min(1, 'Title is required').max(200),
-  amount: z.coerce.number({ invalid_type_error: 'Amount is required' })
+  // In Zod v4, use 'error' instead of 'invalid_type_error'
+  amount: z.coerce.number({ error: 'Amount is required' })
     .positive('Amount must be greater than 0'),
+  // In Zod v4, use the 'error' property for enums
   category: z.enum(CATEGORIES, {
-    errorMap: () => ({ message: 'Category is required' }),
+    error: 'Category is required',
   }),
   date: z.string().min(1, 'Date is required'),
   paymentMethod: z.enum(PAYMENT_METHODS, {
-    errorMap: () => ({ message: 'Payment method is required' }),
+    error: 'Payment method is required',
   }),
   description: z.string().max(2000).optional().default(''),
 });
@@ -41,7 +43,11 @@ export function ExpenseForm({ initialData, onSubmit, onCancel, isSubmitting }: E
       }
     : { date: new Date().toISOString().split('T')[0] };
 
-  const { register, handleSubmit, formState: { errors } } = useForm<ExpenseFormData>({
+  const { register, handleSubmit, formState: { errors } } = useForm<
+    z.input<typeof expenseSchema>,
+    any,
+    ExpenseFormData
+  >({
     resolver: zodResolver(expenseSchema),
     defaultValues,
   });
